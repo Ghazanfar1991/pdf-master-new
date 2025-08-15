@@ -4,7 +4,7 @@ import * as pdfjsLib from 'pdfjs-dist';
 import { PdfFileIcon } from './icons';
 
 // Set up PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://esm.sh/pdfjs-dist@4.5.136/build/pdf.worker.mjs`;
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 interface PdfSplitMergeProps {
     onBack: () => void;

@@ -12,7 +12,7 @@
     "@google/genai": "^1.11.0",
     "@imgly/background-removal": "^1.7.0",
     "docx": "^9.5.1",
-    "fabric": "^6.0.2",
+    "fabric": "^6.7.1",
     "mammoth": "^1.9.1",
     "node-fetch": "^3.3.2",
     "pdf-lib": "^1.17.1",

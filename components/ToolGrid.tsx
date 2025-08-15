@@ -54,10 +54,11 @@ const tools: Tool[] = [
   {
     id: ToolId.PDF_EDITOR,
     title: 'PDF Editor',
-    description: 'Add text, shapes, and other annotations directly to your PDF pages.',
+    description: 'Edit PDF files with text, shapes, highlights and more advanced tools.',
     icon: <PdfEditorToolIcon />,
     premium: true,
   },
+
   {
     id: ToolId.BACKGROUND_REMOVER,
     title: 'Background Remover',

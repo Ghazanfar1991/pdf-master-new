@@ -118,7 +118,7 @@ export const PdfOcrIcon = () => (
     </svg>
 );
 
-export const PdfSplitMergeIcon = () => (
+  export const PdfSplitMergeIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
         <path d="M4 8V4h4" strokeLinecap="round" strokeLinejoin="round" />
         <path d="M4 4l5 5" strokeLinecap="round" strokeLinejoin="round" />
@@ -130,14 +130,15 @@ export const PdfSplitMergeIcon = () => (
         <path d="M20 20l-5-5" strokeLinecap="round" strokeLinejoin="round" />
         <path d="M9 12H15" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
-);
+  );
 
-export const PdfEditorToolIcon = () => (
+  export const PdfEditorToolIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-        <path strokeLinecap="round" strokeLinejoin="round" d="M17.414 7.414a2 2 0 112.828 2.828L11.828 18.657H9v-2.828l8.414-8.415z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4 20h16" />
     </svg>
-);
+  );
+
 
 // Icons for PDF Editor Toolbar
 export const ThumbnailIcon = (props: React.SVGProps<SVGSVGElement>) => (

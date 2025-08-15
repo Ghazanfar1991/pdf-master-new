@@ -2,7 +2,7 @@ import Tesseract from 'tesseract.js';
 import * as pdfjsLib from 'pdfjs-dist';
 
 // Set the worker path for pdfjs (matching the pattern used in other components)
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://esm.sh/pdfjs-dist@4.5.136/build/pdf.worker.mjs`;
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 // Function to convert PDF to images
 const convertPdfToImages = async (file: File): Promise<HTMLCanvasElement[]> => {
