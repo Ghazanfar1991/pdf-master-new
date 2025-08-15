@@ -13,7 +13,7 @@ const Summarizer: React.FC<SummarizerProps> = ({ onBack }) => {
   const [error, setError] = useState('');
 
   const handleSummarize = useCallback(async () => {
-    if (!inputText) {
+    if (!inputText.trim()) {
       setError('Please enter some text to summarize.');
       return;
     }
@@ -31,49 +31,103 @@ const Summarizer: React.FC<SummarizerProps> = ({ onBack }) => {
   }, [inputText]);
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 animate-fade-in">
-      <button onClick={onBack} className="flex items-center text-sm font-medium text-slate-600 hover:text-indigo-600 mb-6 dark:text-slate-400 dark:hover:text-indigo-400">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <div className="w-full max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 animate-fade-in-up">
+      <div className="mb-6">
+        <button 
+          onClick={onBack} 
+          className="flex items-center text-sm font-medium text-slate-600 hover:text-primary-600 dark:text-slate-400 dark:hover:text-primary-400 transition-colors"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-        </svg>
-        Back to Tools
-      </button>
+          </svg>
+          Back to Tools
+        </button>
+      </div>
 
-      <div className="bg-white rounded-xl shadow-lg p-8 dark:bg-slate-800">
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">AI Text Summarizer</h2>
-        <p className="text-slate-500 dark:text-slate-400 mb-6">Paste your text below to get a quick and accurate summary.</p>
+      <div className="card p-8">
+        <div className="text-center mb-8">
+          <div className="mx-auto bg-gradient-primary w-16 h-16 rounded-2xl flex items-center justify-center mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h7" />
+            </svg>
+          </div>
+          <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">AI Text Summarizer</h2>
+          <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+            Paste your text below to get a quick and accurate summary powered by advanced AI.
+          </p>
+        </div>
         
-        <textarea
-          value={inputText}
-          onChange={(e) => setInputText(e.target.value)}
-          placeholder="Paste your article, report, or any long text here..."
-          className="w-full h-48 p-4 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400"
-          disabled={isLoading}
-        />
+        <div className="mb-6">
+          <label htmlFor="inputText" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            Enter your text
+          </label>
+          <textarea
+            id="inputText"
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
+            placeholder="Paste your article, report, or any long text here..."
+            className="textarea w-full min-h-[200px]"
+            disabled={isLoading}
+          />
+        </div>
         
-        {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+        {error && (
+          <div className="mb-4 p-3 rounded-lg bg-error-50 dark:bg-error-900/20 text-error-700 dark:text-error-300">
+            <div className="flex items-center">
+              <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {error}
+            </div>
+          </div>
+        )}
         
-        <div className="mt-6 flex justify-end">
+        <div className="flex justify-end">
           <button
             onClick={handleSummarize}
-            disabled={isLoading || !inputText}
-            className="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:bg-indigo-300 disabled:cursor-not-allowed dark:disabled:bg-indigo-800 dark:disabled:text-slate-400 flex items-center"
+            disabled={isLoading || !inputText.trim()}
+            className="btn btn-primary btn-lg flex items-center"
           >
-            {isLoading && (
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
+            {isLoading ? (
+              <>
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Summarizing...
+              </>
+            ) : (
+              <>
+                <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                Summarize Text
+              </>
             )}
-            {isLoading ? 'Summarizing...' : 'Summarize'}
           </button>
         </div>
 
         {summary && (
-          <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700">
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Summary:</h3>
-            <div className="whitespace-pre-wrap rounded-lg bg-slate-100 p-4 dark:bg-slate-900/50 text-slate-700 dark:text-slate-300">
+          <div className="mt-8 pt-8 border-t border-slate-200 dark:border-slate-700">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white">Summary</h3>
+              <span className="badge badge-success">AI Generated</span>
+            </div>
+            <div className="prose prose-slate dark:prose-invert max-w-none">
+              <div className="whitespace-pre-wrap rounded-xl bg-slate-50 dark:bg-slate-800/50 p-6 text-slate-700 dark:text-slate-300">
                 {summary}
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end">
+              <button 
+                onClick={() => navigator.clipboard.writeText(summary)}
+                className="btn btn-outline flex items-center"
+              >
+                <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                Copy to Clipboard
+              </button>
             </div>
           </div>
         )}

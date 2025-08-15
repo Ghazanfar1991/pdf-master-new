@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import * as fabric from 'fabric';
+import FileUploader from './FileUploader';
 import { 
     SelectIcon, TextIcon, RectangleIcon, CircleIcon, CropIcon, BackgroundRemoverIcon,
     UndoIcon, RedoIcon, ZoomInIcon, ZoomOutIcon, RotateIcon, FlipIcon, LayersIcon,
@@ -10,6 +11,7 @@ import {
 
 interface ImageEditorProps {
     onBack: () => void;
+    initialFile?: File; // New prop to accept pre-uploaded file
 }
 
 type Tool = 'select' | 'move' | 'brush' | 'eraser' | 'eyedropper' | 'magicWand' | 'lasso' | 'text' | 'shape' | 'line' | 'crop' | 'transform';
@@ -33,9 +35,9 @@ interface HistoryState {
     timestamp: number;
 }
 
-const ImageEditor: React.FC<ImageEditorProps> = ({ onBack }) => {
+const ImageEditor: React.FC<ImageEditorProps> = ({ onBack, initialFile }) => {
     // Core state
-    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imageFile, setImageFile] = useState<File | null>(initialFile || null);
     const [imageUrl, setImageUrl] = useState<string>('');
     const [activeTool, setActiveTool] = useState<Tool>('select');
     const [selectedShape, setSelectedShape] = useState<Shape>('rect');
@@ -47,7 +49,6 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ onBack }) => {
     const [zoom, setZoom] = useState(1);
     const [rotation, setRotation] = useState(0);
     const canvasContainerRef = useRef<HTMLDivElement>(null);
-    const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Layers system
     const [layers, setLayers] = useState<Layer[]>([]);
@@ -83,6 +84,13 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ onBack }) => {
     const [isCropping, setIsCropping] = useState(false);
     const [isDrawing, setIsDrawing] = useState(false);
     const [lastPoint, setLastPoint] = useState<fabric.Point | null>(null);
+
+    // Handle initial file if provided
+    useEffect(() => {
+        if (initialFile) {
+            handleFileSelect(initialFile);
+        }
+    }, [initialFile]);
 
     // Save canvas state to history
     const saveToHistory = useCallback(() => {
@@ -346,20 +354,15 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ onBack }) => {
     }, [canvasInstance, handleMouseDown, handleMouseMove, handleMouseUp, saveToHistory]);
 
     // File handling
-    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (file && file.type.startsWith('image/')) {
-            console.log('File selected:', file.name, 'Size:', file.size);
-            setIsLoading(true);
-            setError('');
-            handleClear();
-            setImageFile(file);
-            const url = URL.createObjectURL(file);
-            console.log('Created object URL:', url);
-            setImageUrl(url);
-        } else {
+    const handleFileSelect = (file: File) => {
+        if (!file.type.startsWith('image/')) {
             setError('Please select a valid image file.');
+            return;
         }
+        setError('');
+        setImageFile(file);
+        const url = URL.createObjectURL(file);
+        setImageUrl(url);
     };
 
     // Background removal
@@ -542,7 +545,6 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ onBack }) => {
         setHistoryIndex(-1);
         setZoom(1);
         setRotation(0);
-        if(fileInputRef.current) fileInputRef.current.value = "";
     };
 
     const toolIsActive = (tool: Tool) => activeTool === tool;
@@ -553,12 +555,18 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ onBack }) => {
             <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-4">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <button onClick={onBack} className="flex items-center text-sm font-medium text-slate-600 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                Back to Tools
-            </button>
+                        <button 
+                          onClick={() => {
+                            onBack();
+                            handleClear();
+                          }} 
+                          className="flex items-center text-sm font-medium text-slate-600 hover:text-primary-600 dark:text-slate-400 dark:hover:text-primary-400 transition-colors"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                          </svg>
+                          Back to Tools
+                        </button>
                         <h1 className="text-xl font-bold text-slate-900 dark:text-white">Advanced Image Editor</h1>
                     </div>
                     
@@ -582,46 +590,46 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ onBack }) => {
                         </button>
                     </div>
                 </div>
-                        </div>
+            </div>
 
             <div className="flex-1 flex overflow-hidden">
                 {/* Left Sidebar - Tools */}
                 {showToolbar && (
                     <div className="w-16 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex flex-col items-center py-4 gap-2">
-                        <button title="Select" onClick={() => setActiveTool('select')} className={`p-3 rounded-md ${toolIsActive('select') ? 'bg-indigo-600 text-white' : 'hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
+                        <button title="Select" onClick={() => setActiveTool('select')} className={`p-3 rounded-md ${toolIsActive('select') ? 'bg-gradient-primary text-white' : 'hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
                             <SelectIcon className="h-5 w-5" />
                         </button>
-                        <button title="Move" onClick={() => setActiveTool('move')} className={`p-3 rounded-md ${toolIsActive('move') ? 'bg-indigo-600 text-white' : 'hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
+                        <button title="Move" onClick={() => setActiveTool('move')} className={`p-3 rounded-md ${toolIsActive('move') ? 'bg-gradient-primary text-white' : 'hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
                             <MoveIcon className="h-5 w-5" />
                         </button>
-                        <button title="Brush" onClick={() => setActiveTool('brush')} className={`p-3 rounded-md ${toolIsActive('brush') ? 'bg-indigo-600 text-white' : 'hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
+                        <button title="Brush" onClick={() => setActiveTool('brush')} className={`p-3 rounded-md ${toolIsActive('brush') ? 'bg-gradient-primary text-white' : 'hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
                             <BrushIcon className="h-5 w-5" />
                         </button>
-                        <button title="Eraser" onClick={() => setActiveTool('eraser')} className={`p-3 rounded-md ${toolIsActive('eraser') ? 'bg-indigo-600 text-white' : 'hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
+                        <button title="Eraser" onClick={() => setActiveTool('eraser')} className={`p-3 rounded-md ${toolIsActive('eraser') ? 'bg-gradient-primary text-white' : 'hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
                             <EraserIcon className="h-5 w-5" />
                         </button>
-                        <button title="Eyedropper" onClick={() => setActiveTool('eyedropper')} className={`p-3 rounded-md ${toolIsActive('eyedropper') ? 'bg-indigo-600 text-white' : 'hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
+                        <button title="Eyedropper" onClick={() => setActiveTool('eyedropper')} className={`p-3 rounded-md ${toolIsActive('eyedropper') ? 'bg-gradient-primary text-white' : 'hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
                             <EyedropperIcon className="h-5 w-5" />
                         </button>
-                        <button title="Magic Wand" onClick={() => setActiveTool('magicWand')} className={`p-3 rounded-md ${toolIsActive('magicWand') ? 'bg-indigo-600 text-white' : 'hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
+                        <button title="Magic Wand" onClick={() => setActiveTool('magicWand')} className={`p-3 rounded-md ${toolIsActive('magicWand') ? 'bg-gradient-primary text-white' : 'hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
                             <MagicWandIcon className="h-5 w-5" />
                         </button>
-                        <button title="Lasso" onClick={() => setActiveTool('lasso')} className={`p-3 rounded-md ${toolIsActive('lasso') ? 'bg-indigo-600 text-white' : 'hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
+                        <button title="Lasso" onClick={() => setActiveTool('lasso')} className={`p-3 rounded-md ${toolIsActive('lasso') ? 'bg-gradient-primary text-white' : 'hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
                             <LassoIcon className="h-5 w-5" />
                         </button>
-                        <button title="Text" onClick={() => setActiveTool('text')} className={`p-3 rounded-md ${toolIsActive('text') ? 'bg-indigo-600 text-white' : 'hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
+                        <button title="Text" onClick={() => setActiveTool('text')} className={`p-3 rounded-md ${toolIsActive('text') ? 'bg-gradient-primary text-white' : 'hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
                             <TextIcon className="h-5 w-5" />
                         </button>
-                        <button title="Shape" onClick={() => setActiveTool('shape')} className={`p-3 rounded-md ${toolIsActive('shape') ? 'bg-indigo-600 text-white' : 'hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
+                        <button title="Shape" onClick={() => setActiveTool('shape')} className={`p-3 rounded-md ${toolIsActive('shape') ? 'bg-gradient-primary text-white' : 'hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
                             <ShapeIcon className="h-5 w-5" />
                         </button>
-                        <button title="Line" onClick={() => setActiveTool('line')} className={`p-3 rounded-md ${toolIsActive('line') ? 'bg-indigo-600 text-white' : 'hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
+                        <button title="Line" onClick={() => setActiveTool('line')} className={`p-3 rounded-md ${toolIsActive('line') ? 'bg-gradient-primary text-white' : 'hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
                             <LineIcon className="h-5 w-5" />
                         </button>
-                        <button title="Crop" onClick={isCropping ? applyCrop : startCropping} className={`p-3 rounded-md ${isCropping ? 'bg-indigo-600 text-white' : 'hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
+                        <button title="Crop" onClick={isCropping ? applyCrop : startCropping} className={`p-3 rounded-md ${isCropping ? 'bg-gradient-primary text-white' : 'hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
                             <CropIcon className="h-5 w-5" />
                         </button>
-                        <button title="Transform" onClick={() => setActiveTool('transform')} className={`p-3 rounded-md ${toolIsActive('transform') ? 'bg-indigo-600 text-white' : 'hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
+                        <button title="Transform" onClick={() => setActiveTool('transform')} className={`p-3 rounded-md ${toolIsActive('transform') ? 'bg-gradient-primary text-white' : 'hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
                             <TransformIcon className="h-5 w-5" />
                         </button>
                         <div className="w-px h-6 bg-slate-300 dark:bg-slate-600 my-2"></div>
@@ -634,22 +642,21 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ onBack }) => {
                 {/* Main Canvas Area */}
                 <div className="flex-1 flex flex-col">
                     {!imageUrl ? (
-                        <div className="flex-1 flex items-center justify-center">
-                            <div className="text-center">
-                                <div className="mt-4 flex flex-col justify-center items-center w-full max-w-2xl mx-auto px-6 py-10 border-2 border-slate-300 border-dashed rounded-md dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800/50 cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                                    <input id="file-upload" type="file" className="hidden" ref={fileInputRef} onChange={handleFileChange} accept="image/*" />
-                                    <svg className="mx-auto h-12 w-12 text-slate-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-                                    </svg>
-                                    <p className="mt-2 text-slate-500">Click to upload an image</p>
-                                </div>
+                        <div className="flex-1 flex items-center justify-center p-8">
+                            <div className="w-full max-w-2xl">
+                                <FileUploader 
+                                    onFileSelect={handleFileSelect} 
+                                    accept="image/*"
+                                    maxFileSize={10}
+                                    className="w-full"
+                                />
                             </div>
                         </div>
                     ) : (
                         <div ref={canvasContainerRef} className="flex-1 relative bg-slate-200 dark:bg-slate-700 overflow-auto flex justify-center items-center p-4">
                             {isLoading && (
                                 <div className="absolute inset-0 bg-white/80 dark:bg-slate-800/80 flex flex-col justify-center items-center rounded-md z-50">
-                                    <svg className="animate-spin h-8 w-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <svg className="animate-spin h-8 w-8 text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
@@ -664,13 +671,13 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ onBack }) => {
                 <div className="w-80 bg-white dark:bg-slate-800 border-l border-slate-200 dark:border-slate-700 flex flex-col">
                     {/* Tabs */}
                     <div className="flex border-b border-slate-200 dark:border-slate-700">
-                        <button onClick={() => { setShowProperties(true); setShowFilters(false); setShowAdjustments(false); }} className={`flex-1 p-3 text-sm font-medium ${showProperties ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-500 hover:text-slate-700'}`}>
+                        <button onClick={() => { setShowProperties(true); setShowFilters(false); setShowAdjustments(false); }} className={`flex-1 p-3 text-sm font-medium ${showProperties ? 'text-primary-600 border-b-2 border-primary-600' : 'text-slate-500 hover:text-slate-700'}`}>
                             Properties
                         </button>
-                        <button onClick={() => { setShowProperties(false); setShowFilters(true); setShowAdjustments(false); }} className={`flex-1 p-3 text-sm font-medium ${showFilters ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-500 hover:text-slate-700'}`}>
+                        <button onClick={() => { setShowProperties(false); setShowFilters(true); setShowAdjustments(false); }} className={`flex-1 p-3 text-sm font-medium ${showFilters ? 'text-primary-600 border-b-2 border-primary-600' : 'text-slate-500 hover:text-slate-700'}`}>
                             Filters
                         </button>
-                        <button onClick={() => { setShowProperties(false); setShowFilters(false); setShowAdjustments(true); }} className={`flex-1 p-3 text-sm font-medium ${showAdjustments ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-500 hover:text-slate-700'}`}>
+                        <button onClick={() => { setShowProperties(false); setShowFilters(false); setShowAdjustments(true); }} className={`flex-1 p-3 text-sm font-medium ${showAdjustments ? 'text-primary-600 border-b-2 border-primary-600' : 'text-slate-500 hover:text-slate-700'}`}>
                             Adjust
                         </button>
                     </div>
@@ -763,7 +770,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ onBack }) => {
                                         <button
                                             key={filter}
                                             onClick={() => setActiveFilter(filter)}
-                                            className={`p-2 text-xs rounded border ${activeFilter === filter ? 'bg-indigo-600 text-white' : 'hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+                                            className={`p-2 text-xs rounded border ${activeFilter === filter ? 'bg-gradient-primary text-white' : 'hover:bg-slate-100 dark:hover:bg-slate-700'}`}
                                         >
                                             {filter.charAt(0).toUpperCase() + filter.slice(1)}
                                         </button>
@@ -809,11 +816,11 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ onBack }) => {
                         <div className="p-4">
                             <div className="flex items-center justify-between mb-2">
                                 <h3 className="text-sm font-medium text-slate-900 dark:text-white">Layers</h3>
-                                <button onClick={addLayer} className="text-xs text-indigo-600 hover:text-indigo-700">+ Add</button>
+                                <button onClick={addLayer} className="text-xs text-primary-600 hover:text-primary-700">+ Add</button>
                             </div>
                             <div className="space-y-1 max-h-32 overflow-y-auto">
                                 {layers.map(layer => (
-                                    <div key={layer.id} className={`flex items-center justify-between p-2 rounded text-xs ${activeLayerId === layer.id ? 'bg-indigo-100 dark:bg-indigo-900' : 'hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
+                                    <div key={layer.id} className={`flex items-center justify-between p-2 rounded text-xs ${activeLayerId === layer.id ? 'bg-primary-100 dark:bg-primary-900' : 'hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
                                         <div className="flex items-center gap-2">
                                             <button onClick={() => toggleLayerVisibility(layer.id)} className="text-slate-500">
                                                 {layer.visible ? '👁️' : '👁️‍🗨️'}
@@ -845,7 +852,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ onBack }) => {
                         <button onClick={handleClear} className="px-4 py-2 bg-slate-200 text-slate-700 font-medium rounded-lg hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600">
                             Clear
                         </button>
-                        <button onClick={handleDownload} disabled={!imageUrl} className="px-6 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 disabled:bg-green-300 disabled:cursor-not-allowed">
+                        <button onClick={handleDownload} disabled={!imageUrl} className="px-6 py-2 bg-gradient-primary text-white font-medium rounded-lg hover:shadow-lg disabled:bg-primary-300 disabled:cursor-not-allowed">
                             Download
                          </button>
                     </div>
@@ -853,7 +860,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ onBack }) => {
             </div>
 
             {error && (
-                <div className="fixed bottom-4 right-4 bg-red-500 text-white p-4 rounded-lg shadow-lg z-50">
+                <div className="fixed bottom-4 right-4 bg-error-500 text-white p-4 rounded-lg shadow-lg z-50">
                     {error}
                 </div>
             )}
