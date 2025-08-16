@@ -21,6 +21,8 @@ import RedesignedPdfEditor from './components/RedesignedPdfEditor';
 import LandingPage from './components/LandingPage';
 import FileUploadModal from './components/FileUploadModal';
 import FileUploadPage from './components/FileUploadPage';
+import WatermarkAdder from './components/WatermarkAdder';
+import PdfTextExtractor from './components/PdfTextExtractor';
 
 const App: React.FC = () => {
   const [selectedTool, setSelectedTool] = useState<Tool | null>(null);
@@ -297,6 +299,18 @@ const App: React.FC = () => {
         setUploadedFile(null);
         setUploadedFiles([]);
         return null;
+      case ToolIdEnum.WATERMARK_ADDER:
+        return <WatermarkAdder onBack={() => {
+          setSelectedTool(null);
+          setUploadedFile(null);
+          setUploadedFiles([]);
+        }} initialFile={uploadedFile || undefined} />;
+      case ToolIdEnum.PDF_TEXT_EXTRACTOR:
+        return <PdfTextExtractor onBack={() => {
+          setSelectedTool(null);
+          setUploadedFile(null);
+          setUploadedFiles([]);
+        }} initialFile={uploadedFile || undefined} />;
       default:
         return <ToolGrid onSelectTool={setSelectedTool} />;
     }

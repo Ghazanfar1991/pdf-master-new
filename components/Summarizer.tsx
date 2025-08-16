@@ -38,8 +38,8 @@ const Summarizer: React.FC<SummarizerProps> = ({ onBack }) => {
     try {
       // Calculate max length based on user input or default to 150
       const maxLength = summaryLength && typeof summaryLength === 'number' && summaryLength > 0 ? Math.min(summaryLength, 500) : 150;
-      // Set min length to about 30% of max length, but at least 30 words and not more than max length
-      const minLength = Math.min(Math.max(30, Math.floor(maxLength * 0.3)), maxLength - 10);
+      // Set min length to about 40% of max length, but at least 30 words and not more than max length
+      const minLength = Math.min(Math.max(30, Math.floor(maxLength * 0.4)), maxLength - 10);
       
       console.log('Summarizing with parameters:', { maxLength, minLength, wordCount });
       const result = await summarizeText(inputText, maxLength, minLength);
@@ -101,7 +101,7 @@ const Summarizer: React.FC<SummarizerProps> = ({ onBack }) => {
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             placeholder="Paste your article, report, or any long text here..."
-            className="textarea w-full min-h-[200px]"
+            className="textarea w-full min-h-[200px] p-2"
             disabled={isLoading}
           />
         </div>
@@ -117,13 +117,13 @@ const Summarizer: React.FC<SummarizerProps> = ({ onBack }) => {
               value={summaryLength}
               onChange={(e) => setSummaryLength(e.target.value ? parseInt(e.target.value) : '')}
               min="20"
-              max="500"
-              placeholder="100"
+              max="1000"
+              placeholder="200"
               className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out dark:bg-slate-700 dark:border-slate-600 dark:text-white"
               disabled={isLoading}
             />
             <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-              Enter desired word count for summary (20-500 words)
+              Enter desired word count for summary (20-1000 words)
             </p>
           </div>
           
@@ -131,7 +131,7 @@ const Summarizer: React.FC<SummarizerProps> = ({ onBack }) => {
             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 w-full">
               <h3 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-1">Tip</h3>
               <p className="text-sm text-blue-700 dark:text-blue-300">
-                For best results, use texts with at least 50 words. Very short texts may be returned as-is.
+                For best results, use texts with at least 50 words. Very long texts (over 2000 words) will be automatically processed for summarization.
               </p>
             </div>
           </div>
@@ -192,9 +192,6 @@ const Summarizer: React.FC<SummarizerProps> = ({ onBack }) => {
             <div className="mt-4 flex justify-between items-center">
               <div className="text-sm text-slate-500 dark:text-slate-400">
                 {summary.trim().split(/\s+/).filter(Boolean).length} words
-                {summaryLength && typeof summaryLength === 'number' && wordCount > 50 && summary.trim().split(/\s+/).filter(Boolean).length < summaryLength * 0.7 && (
-                  <span className="ml-2 text-amber-600 dark:text-amber-400">• Summary is shorter than requested. Try increasing the target length or using longer input text.</span>
-                )}
               </div>
               <button 
                 onClick={() => navigator.clipboard.writeText(summary)}

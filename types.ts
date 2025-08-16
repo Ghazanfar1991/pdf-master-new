@@ -14,6 +14,8 @@ export enum ToolId {
   PDF_OCR = 'pdf_ocr',
   PDF_SPLIT_MERGE = 'pdf_split_merge',
   PDF_EDITOR = 'pdf_editor',
+  WATERMARK_ADDER = 'watermark_adder',
+  PDF_TEXT_EXTRACTOR = 'pdf_text_extractor',
 }
 
 export interface Tool {

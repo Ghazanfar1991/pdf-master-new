@@ -7,8 +7,11 @@ interface DocumentTranslatorProps {
 }
 
 const LANGUAGES = [
-    "Chinese (Simplified)", "English", "French", "German", "Hindi", "Italian", "Japanese", "Korean", "Portuguese", "Russian", "Spanish", "Urdu"
-];
+    "Arabic", "Bengali", "Chinese (Simplified)", "Czech", "Danish", "Dutch", "English", "Esperanto", 
+    "Finnish", "French", "German", "Greek", "Hindi", "Hungarian", "Indonesian", "Italian", "Japanese", 
+    "Korean", "Persian", "Polish", "Portuguese", "Romanian", "Russian", "Slovak", "Spanish", "Swedish", 
+    "Turkish", "Ukrainian", "Urdu", "Vietnamese"
+].sort();
 
 type Mode = 'document' | 'text';
 
@@ -171,8 +174,12 @@ const DocumentTranslator: React.FC<DocumentTranslatorProps> = ({ onBack }) => {
                   {extractedText && (
                       <div className="pt-6 border-t border-slate-200 dark:border-slate-700 space-y-4 animate-fade-in">
                            <div className="flex flex-col sm:flex-row gap-3 items-center">
-                              <select value={targetLanguage} onChange={e => setTargetLanguage(e.target.value)} className="w-full sm:w-auto flex-grow pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md dark:bg-slate-700 dark:border-slate-600 dark:text-white">
-                                  {LANGUAGES.map(lang => <option key={lang} value={lang}>{lang}</option>)}
+                              <select value={targetLanguage} onChange={e => setTargetLanguage(e.target.value)} className="w-full sm:w-auto flex-grow pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 rounded-md dark:bg-slate-700 dark:border-slate-600 dark:text-white shadow-sm">
+                                  {LANGUAGES.map(lang => (
+                                    <option key={lang} value={lang}>
+                                      {lang}
+                                    </option>
+                                  ))}
                               </select>
                               <button onClick={handleTranslate} disabled={isTranslating || isExtracting} className="w-full sm:w-auto px-6 py-2 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 disabled:bg-indigo-300 flex items-center justify-center">
                                   {isTranslating && <svg className="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" fill="currentColor"></path></svg>}
@@ -228,8 +235,12 @@ const DocumentTranslator: React.FC<DocumentTranslatorProps> = ({ onBack }) => {
       
       {/* Controls */}
       <div className="pt-6 border-t border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row gap-3 items-center justify-between">
-        <select value={targetLanguage} onChange={e => setTargetLanguage(e.target.value)} className="w-full sm:w-auto flex-grow pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md dark:bg-slate-700 dark:border-slate-600 dark:text-white">
-            {LANGUAGES.map(lang => <option key={lang} value={lang}>{lang}</option>)}
+        <select value={targetLanguage} onChange={e => setTargetLanguage(e.target.value)} className="w-full sm:w-auto flex-grow pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 rounded-md dark:bg-slate-700 dark:border-slate-600 dark:text-white shadow-sm">
+            {LANGUAGES.map(lang => (
+              <option key={lang} value={lang}>
+                {lang}
+              </option>
+            ))}
         </select>
         <div className="flex gap-3 w-full sm:w-auto">
             <button onClick={handleClear} className="w-full sm:w-auto px-6 py-2 bg-slate-200 text-slate-700 font-semibold rounded-lg hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600">
@@ -256,6 +267,21 @@ const DocumentTranslator: React.FC<DocumentTranslatorProps> = ({ onBack }) => {
       <div className="bg-white rounded-xl shadow-lg p-8 dark:bg-slate-800">
         <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Document & Text Translator</h2>
         <p className="text-slate-500 dark:text-slate-400 mb-6">Extract and translate from a file, or enter text directly.</p>
+        
+        <div className="mb-6 p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+          <div className="flex items-start">
+            <svg className="h-5 w-5 text-blue-500 dark:text-blue-400 mt-0.5 mr-2 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+              <h3 className="text-sm font-medium text-blue-800 dark:text-blue-200">Translation Information</h3>
+              <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
+                Supports translation between 30+ languages. For best results, translate shorter texts. 
+                Very long texts may be truncated by the translation service.
+              </p>
+            </div>
+          </div>
+        </div>
 
         <div className="flex justify-center border-b border-slate-200 dark:border-slate-700 mb-6">
           <button onClick={() => switchMode('document')} className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${mode === 'document' ? 'border-b-2 border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'}`}>Translate Document</button>
@@ -264,7 +290,29 @@ const DocumentTranslator: React.FC<DocumentTranslatorProps> = ({ onBack }) => {
         
         {mode === 'document' ? renderDocumentMode() : renderTextMode()}
         
-        {error && <p className="text-red-500 text-sm mt-4 text-center">{error}</p>}
+        {error && (
+          <div className="mt-4 p-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+            <div className="flex items-start">
+              <svg className="h-5 w-5 text-red-500 dark:text-red-400 mt-0.5 mr-2 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <h3 className="text-sm font-medium text-red-800 dark:text-red-200">Translation Error</h3>
+                <p className="mt-1 text-sm text-red-700 dark:text-red-300">{error}</p>
+                {error.includes('limit') && (
+                  <div className="mt-2 text-sm text-red-700 dark:text-red-300">
+                    <p>Try these solutions:</p>
+                    <ul className="list-disc list-inside mt-1 space-y-1">
+                      <li>Wait a moment and try again (rate limit)</li>
+                      <li>Try translating a shorter text</li>
+                      <li>Check your internet connection</li>
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

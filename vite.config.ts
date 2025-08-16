@@ -13,6 +13,15 @@ export default defineConfig(({ mode }) => {
         '@': path.resolve(__dirname, '.'),
       },
     },
+    server: {
+      proxy: {
+        '/api/translate': {
+          target: 'https://libretranslate.de',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api\/translate/, ''),
+        },
+      },
+    },
     build: {
       rollupOptions: {
         output: {

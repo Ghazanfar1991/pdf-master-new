@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import type { Tool } from '../types';
 import { ToolId } from '../types';
 import ToolCard from './ToolCard';
-import { SummarizeIcon, ImageIcon, TextExtractorIcon, BackgroundRemoverIcon, ImageConverterIcon, ImageMergerIcon, ImageCompressorIcon, ImageEditorIcon, SmartConverterIcon, DocumentTranslatorIcon, PdfOcrIcon, PdfSplitMergeIcon, PdfEditorToolIcon } from './icons';
+import { SummarizeIcon, ImageIcon, TextExtractorIcon, BackgroundRemoverIcon, ImageConverterIcon, ImageMergerIcon, ImageCompressorIcon, ImageEditorIcon, SmartConverterIcon, DocumentTranslatorIcon, PdfOcrIcon, PdfSplitMergeIcon, PdfEditorToolIcon, WatermarkAdderIcon, PdfTextExtractorIcon } from './icons';
 
 interface ToolGridProps {
   onSelectTool: (tool: Tool) => void;
@@ -100,6 +100,20 @@ const allTools: Tool[] = [
     description: 'Reduce image file size with a quality slider and size preview.',
     icon: <ImageCompressorIcon />,
     premium: false,
+  },
+  {
+    id: ToolId.WATERMARK_ADDER,
+    title: 'PDF Watermark Adder',
+    description: 'Add custom watermarks to your PDF documents for protection or branding.',
+    icon: <WatermarkAdderIcon />,
+    premium: false,
+  },
+  {
+    id: ToolId.PDF_TEXT_EXTRACTOR,
+    title: 'PDF Text Extractor',
+    description: 'Extract and format text from PDF documents. Works with both digital and scanned PDFs.',
+    icon: <PdfTextExtractorIcon />,
+    premium: false,
   }
 ];
 
@@ -119,7 +133,7 @@ const ToolGrid: React.FC<ToolGridProps> = ({ onSelectTool }) => {
     const filtered = allTools.filter(tool => {
       const matchesCategory = selectedCategory === 'all' ||
         (selectedCategory === 'ai' && [ToolId.SUMMARIZER, ToolId.IMAGE_GENERATOR, ToolId.DOCUMENT_TRANSLATOR, ToolId.TEXT_EXTRACTOR, ToolId.PDF_OCR].includes(tool.id)) ||
-        (selectedCategory === 'pdf' && [ToolId.PDF_OCR, ToolId.PDF_SPLIT_MERGE, ToolId.PDF_EDITOR].includes(tool.id)) ||
+        (selectedCategory === 'pdf' && [ToolId.PDF_OCR, ToolId.PDF_SPLIT_MERGE, ToolId.PDF_EDITOR, ToolId.WATERMARK_ADDER, ToolId.PDF_TEXT_EXTRACTOR].includes(tool.id)) ||
         (selectedCategory === 'image' && [ToolId.BACKGROUND_REMOVER, ToolId.IMAGE_EDITOR, ToolId.IMAGE_CONVERTER, ToolId.SMART_CONVERTER, ToolId.IMAGE_MERGER, ToolId.IMAGE_COMPRESSOR].includes(tool.id));
       
       const matchesSearch = tool.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
