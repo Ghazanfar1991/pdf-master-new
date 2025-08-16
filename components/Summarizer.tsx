@@ -1,6 +1,6 @@
 
-import React, { useState, useCallback } from 'react';
-import { summarizeText } from '../services/geminiService';
+import React, { useState, useCallback, useMemo } from 'react';
+import { summarizeText } from '../services/huggingFaceService';
 
 interface SummarizerProps {
   onBack: () => void;
@@ -11,24 +11,54 @@ const Summarizer: React.FC<SummarizerProps> = ({ onBack }) => {
   const [summary, setSummary] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [wordCount, setWordCount] = useState(0);
+  const [summaryLength, setSummaryLength] = useState<number | ''>(100);
+
+  // Calculate word count
+  useMemo(() => {
+    const words = inputText.trim() ? inputText.trim().split(/\s+/) : [];
+    setWordCount(words.length);
+  }, [inputText]);
 
   const handleSummarize = useCallback(async () => {
     if (!inputText.trim()) {
       setError('Please enter some text to summarize.');
       return;
     }
+    
+    if (wordCount < 5) {
+      setError('Text is too short to summarize. Please enter at least 5 words.');
+      return;
+    }
+    
     setError('');
     setIsLoading(true);
     setSummary('');
+    
     try {
-      const result = await summarizeText(inputText);
+      // Calculate max length based on user input or default to 150
+      const maxLength = summaryLength && typeof summaryLength === 'number' && summaryLength > 0 ? Math.min(summaryLength, 500) : 150;
+      // Set min length to about 30% of max length, but at least 30 words and not more than max length
+      const minLength = Math.min(Math.max(30, Math.floor(maxLength * 0.3)), maxLength - 10);
+      
+      console.log('Summarizing with parameters:', { maxLength, minLength, wordCount });
+      const result = await summarizeText(inputText, maxLength, minLength);
+      console.log('Summarization result:', result);
+      
+      // Check if result indicates a parsing issue
+      if (result.includes('could not be parsed') || result.includes('technical issue') || result.includes('could not be extracted')) {
+        setError(`The summarization service is currently experiencing technical issues. Please try again later, use different text, or adjust the summary length.`);
+        return;
+      }
+      
       setSummary(result);
     } catch (err: any) {
+      console.error('Summarization error:', err);
       setError(err.message || 'An unknown error occurred.');
     } finally {
       setIsLoading(false);
     }
-  }, [inputText]);
+  }, [inputText, summaryLength, wordCount]);
 
   return (
     <div className="w-full max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 animate-fade-in-up">
@@ -58,9 +88,14 @@ const Summarizer: React.FC<SummarizerProps> = ({ onBack }) => {
         </div>
         
         <div className="mb-6">
-          <label htmlFor="inputText" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-            Enter your text
-          </label>
+          <div className="flex justify-between items-center mb-2">
+            <label htmlFor="inputText" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+              Enter your text
+            </label>
+            <span className="text-sm text-slate-500 dark:text-slate-400">
+              {wordCount} words
+            </span>
+          </div>
           <textarea
             id="inputText"
             value={inputText}
@@ -69,6 +104,37 @@ const Summarizer: React.FC<SummarizerProps> = ({ onBack }) => {
             className="textarea w-full min-h-[200px]"
             disabled={isLoading}
           />
+        </div>
+        
+        <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="summaryLength" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              Approximate Summary Length (words)
+            </label>
+            <input
+              type="number"
+              id="summaryLength"
+              value={summaryLength}
+              onChange={(e) => setSummaryLength(e.target.value ? parseInt(e.target.value) : '')}
+              min="20"
+              max="500"
+              placeholder="100"
+              className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+              disabled={isLoading}
+            />
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              Enter desired word count for summary (20-500 words)
+            </p>
+          </div>
+          
+          <div className="flex items-end">
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 w-full">
+              <h3 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-1">Tip</h3>
+              <p className="text-sm text-blue-700 dark:text-blue-300">
+                For best results, use texts with at least 50 words. Very short texts may be returned as-is.
+              </p>
+            </div>
+          </div>
         </div>
         
         {error && (
@@ -85,7 +151,7 @@ const Summarizer: React.FC<SummarizerProps> = ({ onBack }) => {
         <div className="flex justify-end">
           <button
             onClick={handleSummarize}
-            disabled={isLoading || !inputText.trim()}
+            disabled={isLoading || !inputText.trim() || wordCount < 5}
             className="btn btn-primary btn-lg flex items-center"
           >
             {isLoading ? (
@@ -111,14 +177,25 @@ const Summarizer: React.FC<SummarizerProps> = ({ onBack }) => {
           <div className="mt-8 pt-8 border-t border-slate-200 dark:border-slate-700">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-bold text-slate-900 dark:text-white">Summary</h3>
-              <span className="badge badge-success">AI Generated</span>
+              <div className="flex items-center space-x-2">
+                {summaryLength && typeof summaryLength === 'number' && (
+                  <span className="badge badge-info">Target: ~{summaryLength} words</span>
+                )}
+                <span className="badge badge-success">AI Generated</span>
+              </div>
             </div>
             <div className="prose prose-slate dark:prose-invert max-w-none">
               <div className="whitespace-pre-wrap rounded-xl bg-slate-50 dark:bg-slate-800/50 p-6 text-slate-700 dark:text-slate-300">
                 {summary}
               </div>
             </div>
-            <div className="mt-6 flex justify-end">
+            <div className="mt-4 flex justify-between items-center">
+              <div className="text-sm text-slate-500 dark:text-slate-400">
+                {summary.trim().split(/\s+/).filter(Boolean).length} words
+                {summaryLength && typeof summaryLength === 'number' && wordCount > 50 && summary.trim().split(/\s+/).filter(Boolean).length < summaryLength * 0.7 && (
+                  <span className="ml-2 text-amber-600 dark:text-amber-400">• Summary is shorter than requested. Try increasing the target length or using longer input text.</span>
+                )}
+              </div>
               <button 
                 onClick={() => navigator.clipboard.writeText(summary)}
                 className="btn btn-outline flex items-center"

@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { removeImageBackground } from '../services/geminiService';
+import { removeImageBackground } from '../services/huggingFaceService';
 import { SliderHandleIcon } from './icons';
 import FileUploader from './FileUploader';
 import LoadingSpinner from './LoadingSpinner';

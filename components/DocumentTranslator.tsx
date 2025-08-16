@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef } from 'react';
-import { extractTextFromFile, translateText } from '../services/geminiService';
+import { extractTextFromFile, translateText } from '../services/huggingFaceService';
 import { PdfFileIcon } from './icons';
 
 interface DocumentTranslatorProps {
